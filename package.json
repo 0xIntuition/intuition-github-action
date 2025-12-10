@@ -1,20 +1,26 @@
 {
-  "name": "typescript-action",
-  "description": "GitHub Actions TypeScript template",
-  "version": "0.0.0",
-  "author": "",
+  "name": "intuition-github-action",
+  "description": "Create on-chain contributor attestations using the Intuition Protocol",
+  "version": "1.0.0",
+  "author": "0xIntuition",
   "type": "module",
   "private": true,
-  "homepage": "https://github.com/actions/typescript-action",
+  "homepage": "https://github.com/0xIntuition/intuition-github-action",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/actions/typescript-action.git"
+    "url": "git+https://github.com/0xIntuition/intuition-github-action.git"
   },
   "bugs": {
-    "url": "https://github.com/actions/typescript-action/issues"
+    "url": "https://github.com/0xIntuition/intuition-github-action/issues"
   },
   "keywords": [
-    "actions"
+    "actions",
+    "github-actions",
+    "intuition",
+    "attestations",
+    "contributors",
+    "blockchain",
+    "web3"
   ],
   "exports": {
     ".": "./dist/index.js"
@@ -37,7 +43,12 @@
   },
   "license": "MIT",
   "dependencies": {
-    "@actions/core": "^1.11.1"
+    "@0xintuition/graphql": "^2.0.2",
+    "@0xintuition/protocol": "^2.0.2",
+    "@0xintuition/sdk": "^2.0.2",
+    "@actions/core": "^1.11.1",
+    "@actions/github": "^6.0.1",
+    "viem": "^2.41.2"
   },
   "devDependencies": {
     "@eslint/compat": "^1.4.0",
@@ -58,6 +69,7 @@
     "eslint-plugin-prettier": "^5.5.4",
     "jest": "^30.2.0",
     "make-coverage-badge": "^1.2.0",
+    "nock": "^14.0.10",
     "prettier": "^3.7.4",
     "prettier-eslint": "^16.4.2",
     "rollup": "^4.53.3",

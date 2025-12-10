@@ -2,19 +2,24 @@
 
 ## Overview
 
-Transform this TypeScript GitHub Action template into a production-ready action that creates on-chain contributor attestations using the Intuition Protocol. When a PR is merged, the action will:
+Transform this TypeScript GitHub Action template into a production-ready action
+that creates on-chain contributor attestations using the Intuition Protocol.
+When a PR is merged, the action will:
 
 1. Create/verify an atom representing the repository
 2. Create/verify atoms for all commit authors in the PR
-3. Create attestation triples (or add deposits to existing ones) linking contributors to the project
+3. Create attestation triples (or add deposits to existing ones) linking
+   contributors to the project
 
 ## User Requirements Summary
 
-- **Target audience:** Repository owners who want to reward contributors with on-chain attestations
+- **Target audience:** Repository owners who want to reward contributors with
+  on-chain attestations
 - **Trigger:** On PR merge (pull_request.closed + merged == true)
 - **Contributors:** Process ALL commit authors in the PR (not just PR opener)
 - **Existing triples:** Always deposit minimal amount, even if triple exists
-- **Networks:** Support both intuitionTestnet and intuitionMainnet (user-configurable)
+- **Networks:** Support both intuitionTestnet and intuitionMainnet
+  (user-configurable)
 - **Error handling:** Configurable (fail workflow or warn and continue)
 
 ## Architecture
@@ -58,6 +63,7 @@ __fixtures__/
 #### 1. Action Configuration (action.yml)
 
 **Inputs:**
+
 - `private-key` (required): Transaction signing key from GitHub secrets
 - `network` (optional, default: testnet): "testnet" or "mainnet"
 - `failure-mode` (optional, default: warn): "fail" or "warn"
@@ -67,6 +73,7 @@ __fixtures__/
 - `retry-delay` (optional, default: 2000ms): Delay between retries
 
 **Outputs:**
+
 - `project-atom-id`: Vault ID of the project atom
 - `contributor-count`: Number of contributors processed
 - `attestations-created`: Count of new attestations
@@ -79,20 +86,20 @@ __fixtures__/
 ```typescript
 async function run(): Promise<void> {
   // 1. Validate inputs (private key format, network selection, etc.)
-  const config = validateAndParseInputs();
+  const config = validateAndParseInputs()
 
   // 2. Initialize Intuition Protocol client and GitHub Octokit
-  const intuitionClient = initializeIntuitionClient(config);
-  const githubClient = initializeGitHubClient(config);
+  const intuitionClient = initializeIntuitionClient(config)
+  const githubClient = initializeGitHubClient(config)
 
   // 3. Fetch repository metadata (name, description, URL)
-  const repository = await fetchRepositoryData(githubClient);
+  const repository = await fetchRepositoryData(githubClient)
 
   // 4. Fetch all commit authors from the merged PR
-  const contributors = await fetchContributors(githubClient);
+  const contributors = await fetchContributors(githubClient)
 
   // 5. Ensure project atom exists (create if not)
-  const projectAtom = await ensureProjectAtom(intuitionClient, repository);
+  const projectAtom = await ensureProjectAtom(intuitionClient, repository)
 
   // 6. Process each contributor (create atoms + triples)
   const results = await processContributors(
@@ -100,39 +107,47 @@ async function run(): Promise<void> {
     contributors,
     projectAtom,
     config
-  );
+  )
 
   // 7. Set action outputs and log summary
-  setOutputs(projectAtom, results);
-  logSummary(results);
+  setOutputs(projectAtom, results)
+  logSummary(results)
 }
 ```
 
 #### 3. Intuition Protocol Integration
 
 **Client Wrapper (src/intuition/client.ts):**
+
 - Initialize viem/ethers wallet from private key
 - Configure network (intuitionTestnet or intuitionMainnet)
 - Provide retry-wrapped methods for protocol operations
 - Check TRUST token balance before operations
 
 **Atom Management (src/intuition/atoms.ts):**
+
 - `ensureProjectAtom()`: Check existence, create if needed with Thing schema
-- `ensureContributorAtom()`: Check existence, create if needed with GitHub profile data
+- `ensureContributorAtom()`: Check existence, create if needed with GitHub
+  profile data
 - Calculate atom IDs: `keccak256(abi.encodePacked(data))`
 
 **Triple Management (src/intuition/triples.ts):**
+
 - `ensureAttestationTriple()`: Create triple or add deposit if exists
-- Use predicate: "was associated with" (termId: 0x4ca4033b5e5e3e274225a9145170a0183f0a9ebe6ba7c4b28cce5e8cf536674c)
-- Calculate triple IDs: `keccak256(abi.encodePacked(subjectId, predicateId, objectId))`
+- Use predicate: "was associated with" (termId:
+  0x4ca4033b5e5e3e274225a9145170a0183f0a9ebe6ba7c4b28cce5e8cf536674c)
+- Calculate triple IDs:
+  `keccak256(abi.encodePacked(subjectId, predicateId, objectId))`
 
 #### 4. GitHub Integration
 
 **Repository Data (src/github/repository.ts):**
+
 - Extract name, description, URL from GitHub API
 - Handle missing descriptions with defaults
 
 **Contributor Data (src/github/contributors.ts):**
+
 - Fetch all commits in the merged PR (with pagination)
 - Extract unique commit authors
 - Fetch GitHub profiles for each author
@@ -142,6 +157,7 @@ async function run(): Promise<void> {
 #### 5. Error Handling Strategy
 
 **Error Types:**
+
 - `InvalidInputError`: Bad configuration (always fails)
 - `InsufficientFundsError`: Not enough TRUST (always fails)
 - `NetworkError`: Transient network issues (retryable)
@@ -149,28 +165,33 @@ async function run(): Promise<void> {
 - `TransactionFailedError`: Transaction reverts (configurable)
 
 **Retry Logic:**
+
 - Exponential backoff for network errors
 - Configurable max attempts and delay
 - Skip retry for permanent errors (invalid input, insufficient funds)
 
 **Failure Modes:**
+
 - `fail`: Stop and fail the workflow on errors
 - `warn`: Log warning and continue processing remaining contributors
 
 #### 6. Security Measures
 
 **Private Key Protection:**
+
 - Validate format (0x + 64 hex chars)
 - Mask in logs using `core.setSecret()`
 - Never output or log the key
 
 **Input Sanitization:**
+
 - Trim whitespace
 - Check for injection attempts
 - Validate all numeric values
 - Validate URL formats
 
 **Transaction Safety:**
+
 - Verify parameters before signing
 - Use HTTPS for all API calls
 - Configure reasonable timeouts
@@ -179,24 +200,27 @@ async function run(): Promise<void> {
 ## Dependencies to Add
 
 ### Production Dependencies
+
 ```json
 {
   "@0xintuition/protocol": "latest",
   "@actions/github": "^6.0.0",
-  "viem": "^2.x.x"  // or "ethers": "^6.x.x" (depends on SDK)
+  "viem": "^2.x.x" // or "ethers": "^6.x.x" (depends on SDK)
 }
 ```
 
 ### Development Dependencies
+
 ```json
 {
-  "nock": "^13.x.x"  // HTTP mocking for tests
+  "nock": "^13.x.x" // HTTP mocking for tests
 }
 ```
 
 ## Testing Strategy
 
 ### Unit Tests
+
 - Intuition client initialization and operations
 - Atom existence checking and creation
 - Triple creation and deposit logic
@@ -205,6 +229,7 @@ async function run(): Promise<void> {
 - Error handling for each error type
 
 ### Integration Tests
+
 - Complete flow from PR data to attestations
 - Existing atom/triple handling
 - Multiple contributors processing
@@ -212,6 +237,7 @@ async function run(): Promise<void> {
 - Retry logic under network failures
 
 ### Mocking
+
 - Mock `@0xintuition/protocol` SDK methods
 - Mock GitHub API with nock
 - Mock environment variables for action inputs
@@ -317,14 +343,16 @@ jobs:
 
 ### Confirmed Behaviors
 
-1. **Batching:** YES - Use batch operations (`createAtoms([...])`, `createTriples([...])`)
+1. **Batching:** YES - Use batch operations (`createAtoms([...])`,
+   `createTriples([...])`)
    - More gas-efficient
    - Process multiple contributors per transaction
    - Requires careful error handling (one failure affects batch)
 
 2. **Non-GitHub Contributors:** Use commit metadata
    - Create atoms using commit author name/email when GitHub profile unavailable
-   - Construct profile URL as `https://github.com/{username}` even if user doesn't exist
+   - Construct profile URL as `https://github.com/{username}` even if user
+     doesn't exist
    - Gracefully handle 404s on profile fetch
 
 3. **Transaction Confirmations:** Wait for confirmations
@@ -333,7 +361,8 @@ jobs:
    - Add `confirmations` to network configuration
 
 4. **Network Selection:** Use library-provided networks
-   - Import `intuitionTestnet` and `intuitionMainnet` from `@0xintuition/protocol`
+   - Import `intuitionTestnet` and `intuitionMainnet` from
+     `@0xintuition/protocol`
    - User selects via action input
 
 5. **Contributors:** All commit authors (not just PR opener)
@@ -347,29 +376,32 @@ jobs:
 ### Batching Strategy
 
 **Approach:**
+
 - Batch ALL contributor atoms creation in single transaction
 - Batch ALL triple creations in single transaction
 - Separate batch for deposits to existing triples
 
 **Error Handling with Batching:**
+
 - If batch fails, fall back to individual transactions
 - Log which items succeeded/failed
 - In `warn` mode: continue after batch failure
 - In `fail` mode: stop on batch failure
 
 **Code Structure:**
+
 ```typescript
 // Try batch first
 try {
-  await createAtomsBatch(contributors);
+  await createAtomsBatch(contributors)
 } catch (batchError) {
-  core.warning('Batch creation failed, falling back to individual transactions');
+  core.warning('Batch creation failed, falling back to individual transactions')
   // Retry individually
   for (const contributor of contributors) {
     try {
-      await createAtom(contributor);
+      await createAtom(contributor)
     } catch (error) {
-      handleError(error, failureMode);
+      handleError(error, failureMode)
     }
   }
 }
@@ -378,6 +410,7 @@ try {
 ### Non-GitHub User Handling
 
 **Atom Data for Non-GitHub Users:**
+
 ```typescript
 // When GitHub profile fetch returns 404
 {
@@ -388,6 +421,7 @@ try {
 ```
 
 **Detection Strategy:**
+
 - Try to fetch GitHub profile
 - On 404: use commit author metadata
 - On other errors: retry with backoff
@@ -395,11 +429,12 @@ try {
 ### Confirmation Strategy
 
 **Implementation:**
+
 ```typescript
 interface TransactionResult {
-  hash: string;
-  confirmed: boolean;
-  blockNumber?: number;
+  hash: string
+  confirmed: boolean
+  blockNumber?: number
 }
 
 async function waitForConfirmation(
@@ -407,15 +442,15 @@ async function waitForConfirmation(
   requiredConfirmations: number
 ): Promise<TransactionResult> {
   // Wait for transaction receipt
-  const receipt = await waitForReceipt(txHash);
+  const receipt = await waitForReceipt(txHash)
 
   // Wait for additional confirmations
   if (requiredConfirmations > 1) {
-    const currentBlock = await getCurrentBlock();
-    const confirmations = currentBlock - receipt.blockNumber;
+    const currentBlock = await getCurrentBlock()
+    const confirmations = currentBlock - receipt.blockNumber
 
     if (confirmations < requiredConfirmations) {
-      await waitForBlocks(requiredConfirmations - confirmations);
+      await waitForBlocks(requiredConfirmations - confirmations)
     }
   }
 
@@ -423,11 +458,12 @@ async function waitForConfirmation(
     hash: txHash,
     confirmed: true,
     blockNumber: receipt.blockNumber
-  };
+  }
 }
 ```
 
 **Network Defaults:**
+
 ```typescript
 export const NETWORK_DEFAULTS = {
   testnet: {
@@ -437,10 +473,10 @@ export const NETWORK_DEFAULTS = {
   },
   mainnet: {
     minDeposit: 10000000000000000n, // 0.01 TRUST
-    confirmations: 2,  // Wait for 2 confirmations on mainnet
+    confirmations: 2, // Wait for 2 confirmations on mainnet
     gasLimit: 5000000n
   }
-};
+}
 ```
 
 ## Updated Implementation Sequence
@@ -505,13 +541,16 @@ export const NETWORK_DEFAULTS = {
 The action will include comprehensive logging at multiple levels:
 
 ### 1. Transaction Details
+
 - Transaction hash for each operation
 - Gas used per transaction
 - Block number where transaction was confirmed
 - Confirmation count
-- Example: `✓ Transaction confirmed: 0xabc123... (Block: 12345, Gas: 250000, Confirmations: 2)`
+- Example:
+  `✓ Transaction confirmed: 0xabc123... (Block: 12345, Gas: 250000, Confirmations: 2)`
 
 ### 2. Atom IDs
+
 - Vault ID for project atom (created or existing)
 - Vault ID for each contributor atom
 - Clear indication of whether atom was created or already existed
@@ -519,6 +558,7 @@ The action will include comprehensive logging at multiple levels:
 - Example: `✓ Contributor atom for @johndoe: 0x456ghi... (created)`
 
 ### 3. Cost Breakdown
+
 - TRUST token cost for each atom creation
 - TRUST token cost for each triple creation/deposit
 - Cumulative total cost
@@ -534,6 +574,7 @@ The action will include comprehensive logging at multiple levels:
   ```
 
 ### 4. GitHub Data
+
 - Repository name and URL
 - Number of commits in PR
 - Contributor usernames and names
@@ -553,23 +594,27 @@ The action will include comprehensive logging at multiple levels:
 ### Logging Levels
 
 **core.info()** - Normal progress updates:
+
 - Starting operation
 - Successfully completed operations
 - Summary statistics
 
 **core.debug()** - Detailed information (only when ACTIONS_STEP_DEBUG=true):
+
 - Raw GitHub API responses
 - Atom/triple ID calculations
 - Network configuration details
 - Transaction parameters before signing
 
 **core.warning()** - Non-critical issues:
+
 - Batch operation fallback to individual
 - Contributors without GitHub profiles
 - Rate limiting encountered
 - Retries in progress
 
 **core.error()** - Errors:
+
 - Transaction failures
 - Insufficient funds
 - Invalid inputs
@@ -602,6 +647,7 @@ Remaining Balance: 1.487 TRUST
 ## SDK Investigation Notes
 
 Based on the Intuition documentation and the user's reference to three packages:
+
 - `@0xintuition/sdk` - High-level TypeScript SDK
 - `@0xintuition/protocol` - Contract ABIs, addresses, network configs
 - `@0xintuition/graphql` - Query existing data
@@ -609,10 +655,12 @@ Based on the Intuition documentation and the user's reference to three packages:
 ### Implementation Strategy
 
 **Phase 1 of implementation will include:**
+
 1. Install all three packages
 2. Examine exported types and methods
-3. Check for examples in node_modules/@0xintuition/*/README.md
-4. Refer to documentation at docs.intuition.systems and tech.docs.intuition.systems
+3. Check for examples in node_modules/@0xintuition/\*/README.md
+4. Refer to documentation at docs.intuition.systems and
+   tech.docs.intuition.systems
 5. Determine the correct API pattern:
    - Option A: Use high-level SDK methods
    - Option B: Use contract ABIs with viem/ethers directly
@@ -622,39 +670,43 @@ Based on the Intuition documentation and the user's reference to three packages:
 
 ```typescript
 // Expected pattern based on earlier documentation fetch
-import { createClient } from '@0xintuition/sdk';
-import { intuitionTestnet, intuitionMainnet } from '@0xintuition/protocol';
+import { createClient } from '@0xintuition/sdk'
+import { intuitionTestnet, intuitionMainnet } from '@0xintuition/protocol'
 
 const client = createClient({
   network: intuitionTestnet,
   wallet: walletClient // viem wallet
-});
+})
 
 // Check existence
-const exists = await client.isTermCreated(termId);
+const exists = await client.isTermCreated(termId)
 
 // Create atoms
 const atomResult = await client.createAtoms({
   atoms: [{ data: thingData, deposit: amount }]
-});
+})
 
 // Create triples
 const tripleResult = await client.createTriples({
-  triples: [{
-    subjectId,
-    predicateId,
-    objectId,
-    deposit: amount
-  }]
-});
+  triples: [
+    {
+      subjectId,
+      predicateId,
+      objectId,
+      deposit: amount
+    }
+  ]
+})
 ```
 
 **If SDK doesn't provide high-level methods:**
+
 - Use contract ABIs from `@0xintuition/protocol`
 - Call MultiVault contract directly with viem
 - Reference the contract functions from documentation
 
 **GraphQL usage:**
+
 - Use for checking existence of atoms/triples
 - Reduces blockchain calls
 - May be faster than contract reads
@@ -662,36 +714,44 @@ const tripleResult = await client.createTriples({
 ### Dependencies Decision
 
 Will determine during Phase 1 implementation whether to use:
+
 - `viem` (modern, TypeScript-first, tree-shakeable)
 - `ethers` (established, widely used)
 - Based on `@0xintuition/sdk` peer dependencies
 
 ## Feature Suggestions for Future Improvements
 
-1. **Multiple Predicates:** Support custom predicates beyond "was associated with"
+1. **Multiple Predicates:** Support custom predicates beyond "was associated
+   with"
 2. **Contribution Weighting:** Larger deposits based on lines of code changed
 3. **Time-Based Attestations:** Track contribution over time periods
 4. **Team Recognition:** Create team/organization atoms and link contributors
-5. **Achievement Badges:** Create special atoms for milestones (1st PR, 100th commit)
+5. **Achievement Badges:** Create special atoms for milestones (1st PR, 100th
+   commit)
 6. **Reputation Scores:** Aggregate attestation counts into reputation metrics
 7. **Cross-Repo Attestations:** Link contributor across multiple repositories
-8. **Revocation:** Support removing attestations for reverted/harmful contributions
+8. **Revocation:** Support removing attestations for reverted/harmful
+   contributions
 9. **GraphQL Integration:** Query existing attestations before creating
 10. **Dashboard Integration:** Link to Intuition Portal to view attestations
 11. **Notification System:** Notify contributors when they receive attestations
 12. **Gas Optimization:** Dynamic gas pricing based on network conditions
 13. **Multi-Chain Support:** Extend beyond Base to other EVM chains
-14. **Attestation Templates:** Pre-configured attestation types (bug fix, feature, docs)
+14. **Attestation Templates:** Pre-configured attestation types (bug fix,
+    feature, docs)
 
 ---
 
 ## Summary: Ready for Implementation
 
-This plan provides a comprehensive roadmap for transforming the TypeScript GitHub Action template into a production-ready Intuition Protocol contributor attestation system.
+This plan provides a comprehensive roadmap for transforming the TypeScript
+GitHub Action template into a production-ready Intuition Protocol contributor
+attestation system.
 
 ### What We're Building
 
 A GitHub Action that:
+
 - ✅ Triggers on PR merge
 - ✅ Creates on-chain attestations for ALL commit authors
 - ✅ Uses Intuition Protocol (testnet/mainnet)
@@ -705,10 +765,13 @@ A GitHub Action that:
 
 1. **Batching:** Batch atom/triple creation, fallback to individual on failure
 2. **Non-GitHub Contributors:** Use commit author name/email as fallback
-3. **Confirmations:** Wait for network-specific confirmations (testnet: 1, mainnet: 2)
+3. **Confirmations:** Wait for network-specific confirmations (testnet: 1,
+   mainnet: 2)
 4. **Error Handling:** Respect user's failure-mode configuration
-5. **Logging:** Four-level logging (transaction details, atom IDs, costs, GitHub data)
-6. **SDK:** Investigate `@0xintuition/sdk`, `@0xintuition/protocol`, `@0xintuition/graphql` during implementation
+5. **Logging:** Four-level logging (transaction details, atom IDs, costs, GitHub
+   data)
+6. **SDK:** Investigate `@0xintuition/sdk`, `@0xintuition/protocol`,
+   `@0xintuition/graphql` during implementation
 
 ### Critical Success Factors
 
@@ -721,6 +784,8 @@ A GitHub Action that:
 
 ### Implementation Timeline
 
-8 phases covering dependencies → infrastructure → integrations → orchestration → testing → documentation → build verification
+8 phases covering dependencies → infrastructure → integrations → orchestration →
+testing → documentation → build verification
 
-The plan is detailed enough to execute systematically while remaining flexible for SDK API adjustments during implementation.
+The plan is detailed enough to execute systematically while remaining flexible
+for SDK API adjustments during implementation.

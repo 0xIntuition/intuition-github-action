@@ -1,23 +1,54 @@
-name: The name of your action here
-description: Provide a description here
-author: Your name or organization here
+name: Intuition Contributor Attestation
+description:
+  Create on-chain contributor attestations using the Intuition Protocol
+author: 0xIntuition
 
-# Add your action's branding here. This will appear on the GitHub Marketplace.
 branding:
-  icon: heart
-  color: red
+  icon: award
+  color: purple
 
-# Define your inputs here.
 inputs:
-  milliseconds:
-    description: Your input description here
+  private-key:
+    description: Private key for signing transactions (from GitHub secrets)
     required: true
-    default: '1000'
+  network:
+    description: Network to use (testnet or mainnet)
+    required: false
+    default: 'testnet'
+  failure-mode:
+    description: How to handle errors (fail or warn)
+    required: false
+    default: 'warn'
+  min-deposit-amount:
+    description: Minimum deposit amount in TRUST tokens (wei)
+    required: false
+    default: ''
+  github-token:
+    description: GitHub token for API access
+    required: false
+    default: ${{ github.token }}
+  retry-attempts:
+    description: Number of retry attempts for network operations
+    required: false
+    default: '3'
+  retry-delay:
+    description: Delay between retries in milliseconds
+    required: false
+    default: '2000'
 
-# Define your outputs here.
 outputs:
-  time:
-    description: Your output description here
+  project-atom-id:
+    description: Vault ID of the project atom
+  contributor-count:
+    description: Number of contributors processed
+  attestations-created:
+    description: Count of new attestations created
+  attestations-updated:
+    description: Count of existing attestations updated
+  transaction-hashes:
+    description: JSON array of transaction hashes
+  total-cost:
+    description: Total cost in TRUST tokens (wei)
 
 runs:
   using: node24
