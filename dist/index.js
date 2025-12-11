@@ -53262,7 +53262,7 @@ const chainConfig = {
     serializers,
 };
 
-const sourceId$1 = 1; // mainnet
+const sourceId = 1; // mainnet
 const base = /*#__PURE__*/ defineChain({
     ...chainConfig,
     id: 8453,
@@ -53283,12 +53283,12 @@ const base = /*#__PURE__*/ defineChain({
     contracts: {
         ...chainConfig.contracts,
         disputeGameFactory: {
-            [sourceId$1]: {
+            [sourceId]: {
                 address: '0x43edB88C4B80fDD2AdFF2412A7BebF9dF42cB40e',
             },
         },
         l2OutputOracle: {
-            [sourceId$1]: {
+            [sourceId]: {
                 address: '0x56315b90c40730925ec5485cf004d835058518A0',
             },
         },
@@ -53297,19 +53297,19 @@ const base = /*#__PURE__*/ defineChain({
             blockCreated: 5022,
         },
         portal: {
-            [sourceId$1]: {
+            [sourceId]: {
                 address: '0x49048044D57e1C92A77f79988d21Fa8fAF74E97e',
                 blockCreated: 17482143,
             },
         },
         l1StandardBridge: {
-            [sourceId$1]: {
+            [sourceId]: {
                 address: '0x3154Cf16ccdb4C6d922629664174b904d80F2C35',
                 blockCreated: 17482143,
             },
         },
     },
-    sourceId: sourceId$1,
+    sourceId,
 });
 /*#__PURE__*/ defineChain({
     ...base,
@@ -53317,67 +53317,6 @@ const base = /*#__PURE__*/ defineChain({
     rpcUrls: {
         default: {
             http: ['https://mainnet-preconf.base.org'],
-        },
-    },
-});
-
-const sourceId = 11_155_111; // sepolia
-const baseSepolia = /*#__PURE__*/ defineChain({
-    ...chainConfig,
-    id: 84532,
-    network: 'base-sepolia',
-    name: 'Base Sepolia',
-    nativeCurrency: { name: 'Sepolia Ether', symbol: 'ETH', decimals: 18 },
-    rpcUrls: {
-        default: {
-            http: ['https://sepolia.base.org'],
-        },
-    },
-    blockExplorers: {
-        default: {
-            name: 'Basescan',
-            url: 'https://sepolia.basescan.org',
-            apiUrl: 'https://api-sepolia.basescan.org/api',
-        },
-    },
-    contracts: {
-        ...chainConfig.contracts,
-        disputeGameFactory: {
-            [sourceId]: {
-                address: '0xd6E6dBf4F7EA0ac412fD8b65ED297e64BB7a06E1',
-            },
-        },
-        l2OutputOracle: {
-            [sourceId]: {
-                address: '0x84457ca9D0163FbC4bbfe4Dfbb20ba46e48DF254',
-            },
-        },
-        portal: {
-            [sourceId]: {
-                address: '0x49f53e41452c74589e85ca1677426ba426459e85',
-                blockCreated: 4446677,
-            },
-        },
-        l1StandardBridge: {
-            [sourceId]: {
-                address: '0xfd0Bf71F60660E2f608ed56e1659C450eB113120',
-                blockCreated: 4446677,
-            },
-        },
-        multicall3: {
-            address: '0xca11bde05977b3631167028862be2a173976ca11',
-            blockCreated: 1059647,
-        },
-    },
-    testnet: true,
-    sourceId,
-});
-/*#__PURE__*/ defineChain({
-    ...baseSepolia,
-    experimental_preconfirmationTime: 200,
-    rpcUrls: {
-        default: {
-            http: ['https://sepolia-preconf.base.org'],
         },
     },
 });
@@ -56707,7 +56646,7 @@ var intuitionMainnet = defineChain({
 });
 
 // src/deployments.ts
-({
+var intuitionDeployments = {
   Trust: {
     [base.id]: "0x6cd905dF2Ed214b22e0d48FF17CD4200C1C6d8A3"
   },
@@ -56735,7 +56674,7 @@ var intuitionMainnet = defineChain({
     [intuitionTestnet.id]: "0xE65EcaAF5964aC0d94459A66A59A8B9eBCE42CbB",
     [intuitionMainnet.id]: "0x23afF95153aa88D28B9B97Ba97629E05D5fD335d"
   }
-});
+};
 async function eventParseAtomCreated(client, hash) {
   const { logs, status } = await client.waitForTransactionReceipt({ hash });
   if (status === "reverted") {
@@ -56771,6 +56710,21 @@ async function eventParseTripleCreated(client, hash) {
     eventName: "TripleCreated"
   });
   return events;
+}
+
+// src/utils/get-contract-address-from-chain-id.ts
+function getContractAddressFromChainId(name, chainId) {
+  var _a;
+  const address = (_a = intuitionDeployments[name]) == null ? void 0 : _a[chainId];
+  if (!address) {
+    throw new Error(`Contract ${name} not found for chain ID ${chainId}`);
+  }
+  return address;
+}
+
+// src/utils/get-multivault-address-from-chain-id.ts
+function getMultiVaultAddressFromChainId(chainId) {
+  return getContractAddressFromChainId("MultiVault", chainId);
 }
 
 /**
@@ -56934,13 +56888,11 @@ function getNetworkConfig(network) {
     if (network === 'mainnet') {
         return {
             name: 'mainnet',
-            chain: base,
             ...NETWORK_DEFAULTS.mainnet
         };
     }
     return {
         name: 'testnet',
-        chain: baseSepolia,
         ...NETWORK_DEFAULTS.testnet
     };
 }
@@ -57028,6 +56980,16 @@ class IntuitionClient {
      */
     getMinDeposit() {
         return this.minDeposit;
+    }
+    /**
+     * Get the MultiVault contract address for the current network
+     */
+    getMultiVaultAddress() {
+        const chainId = this.publicClient.chain?.id;
+        if (!chainId) {
+            throw new Error('Chain ID not available from public client');
+        }
+        return getMultiVaultAddressFromChainId(chainId);
     }
     /**
      * Check wallet balance
@@ -57637,7 +57599,7 @@ async function ensureProjectAtom(client, atomData, retryOptions) {
             const minDeposit = client.getMinDeposit();
             await client.ensureSufficientBalance(minDeposit);
             const result = await createAtomFromThing({
-                address: client.getAddress(),
+                address: client.getMultiVaultAddress(),
                 walletClient: client.getWalletClient(),
                 publicClient: client.getPublicClient()
             }, {
@@ -57698,7 +57660,7 @@ async function ensureContributorAtom(client, atomData, retryOptions) {
             const minDeposit = client.getMinDeposit();
             await client.ensureSufficientBalance(minDeposit);
             const result = await createAtomFromThing({
-                address: client.getAddress(),
+                address: client.getMultiVaultAddress(),
                 walletClient: client.getWalletClient(),
                 publicClient: client.getPublicClient()
             }, {
@@ -57764,7 +57726,7 @@ async function ensureAttestationTriple(client, contributorAtomId, projectAtomId,
             coreExports.info(`Adding deposit to existing triple: ${tripleId}`);
             try {
                 const result = await deposit({
-                    address: client.getAddress(),
+                    address: client.getMultiVaultAddress(),
                     walletClient: client.getWalletClient(),
                     publicClient: client.getPublicClient()
                 }, {
@@ -57792,7 +57754,7 @@ async function ensureAttestationTriple(client, contributorAtomId, projectAtomId,
             coreExports.info(`Creating new attestation triple: ${tripleId}`);
             try {
                 const result = await createTripleStatement({
-                    address: client.getAddress(),
+                    address: client.getMultiVaultAddress(),
                     walletClient: client.getWalletClient(),
                     publicClient: client.getPublicClient()
                 }, {

@@ -70,7 +70,7 @@ export async function ensureAttestationTriple(
       try {
         const result = await deposit(
           {
-            address: client.getAddress(),
+            address: client.getMultiVaultAddress(),
             walletClient: client.getWalletClient(),
             publicClient: client.getPublicClient()
           },
@@ -109,7 +109,7 @@ export async function ensureAttestationTriple(
       try {
         const result = await createTripleStatement(
           {
-            address: client.getAddress(),
+            address: client.getMultiVaultAddress(),
             walletClient: client.getWalletClient(),
             publicClient: client.getPublicClient()
           },
