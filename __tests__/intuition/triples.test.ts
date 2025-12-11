@@ -48,7 +48,7 @@ const mockIntuitionClient = {
     confirmed: true,
     blockNumber: 12345n
   }))
-}
+} as unknown as import('../../src/intuition/client.js').IntuitionClient
 
 // Import the module being tested
 const { ensureAttestationTriple, batchCreateAttestationTriples } =
@@ -77,7 +77,7 @@ describe('ensureAttestationTriple', () => {
     })
 
     const result = await ensureAttestationTriple(
-      mockIntuitionClient as any,
+      mockIntuitionClient,
       contributorAtomId,
       projectAtomId,
       retryOptions
@@ -105,7 +105,7 @@ describe('ensureAttestationTriple', () => {
     })
 
     const result = await ensureAttestationTriple(
-      mockIntuitionClient as any,
+      mockIntuitionClient,
       contributorAtomId,
       projectAtomId,
       retryOptions
@@ -132,7 +132,7 @@ describe('ensureAttestationTriple', () => {
     })
 
     await ensureAttestationTriple(
-      mockIntuitionClient as any,
+      mockIntuitionClient,
       contributorAtomId,
       projectAtomId,
       retryOptions
@@ -152,7 +152,7 @@ describe('ensureAttestationTriple', () => {
     })
 
     await ensureAttestationTriple(
-      mockIntuitionClient as any,
+      mockIntuitionClient,
       contributorAtomId,
       projectAtomId,
       retryOptions
@@ -171,7 +171,7 @@ describe('ensureAttestationTriple', () => {
     })
 
     await ensureAttestationTriple(
-      mockIntuitionClient as any,
+      mockIntuitionClient,
       contributorAtomId,
       projectAtomId,
       retryOptions
@@ -188,7 +188,7 @@ describe('ensureAttestationTriple', () => {
     })
 
     await ensureAttestationTriple(
-      mockIntuitionClient as any,
+      mockIntuitionClient,
       contributorAtomId,
       projectAtomId,
       retryOptions
@@ -204,7 +204,7 @@ describe('ensureAttestationTriple', () => {
     })
 
     const result = await ensureAttestationTriple(
-      mockIntuitionClient as any,
+      mockIntuitionClient,
       contributorAtomId,
       projectAtomId,
       retryOptions
@@ -222,7 +222,7 @@ describe('ensureAttestationTriple', () => {
 
     await expect(
       ensureAttestationTriple(
-        mockIntuitionClient as any,
+        mockIntuitionClient,
         contributorAtomId,
         projectAtomId,
         retryOptions
@@ -236,7 +236,7 @@ describe('ensureAttestationTriple', () => {
 
     await expect(
       ensureAttestationTriple(
-        mockIntuitionClient as any,
+        mockIntuitionClient,
         contributorAtomId,
         projectAtomId,
         retryOptions
@@ -253,7 +253,7 @@ describe('ensureAttestationTriple', () => {
     })
 
     const result = await ensureAttestationTriple(
-      mockIntuitionClient as any,
+      mockIntuitionClient,
       contributorAtomId,
       projectAtomId,
       retryOptions
@@ -288,7 +288,7 @@ describe('batchCreateAttestationTriples', () => {
     })
 
     const results = await batchCreateAttestationTriples(
-      mockIntuitionClient as any,
+      mockIntuitionClient,
       contributorAtomIds,
       projectAtomId,
       retryOptions
@@ -306,7 +306,7 @@ describe('batchCreateAttestationTriples', () => {
       .mockResolvedValueOnce({ transactionHash: '0xc3' as Hex })
 
     const results = await batchCreateAttestationTriples(
-      mockIntuitionClient as any,
+      mockIntuitionClient,
       contributorAtomIds,
       projectAtomId,
       retryOptions
@@ -333,7 +333,7 @@ describe('batchCreateAttestationTriples', () => {
     })
 
     const results = await batchCreateAttestationTriples(
-      mockIntuitionClient as any,
+      mockIntuitionClient,
       contributorAtomIds,
       projectAtomId,
       retryOptions
@@ -354,7 +354,7 @@ describe('batchCreateAttestationTriples', () => {
     })
 
     await batchCreateAttestationTriples(
-      mockIntuitionClient as any,
+      mockIntuitionClient,
       contributorAtomIds,
       projectAtomId,
       retryOptions

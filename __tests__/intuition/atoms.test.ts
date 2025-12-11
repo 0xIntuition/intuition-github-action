@@ -47,7 +47,7 @@ const mockIntuitionClient = {
     confirmed: true,
     blockNumber: TEST_BLOCK_NUMBER
   }))
-}
+} as unknown as import('../../src/intuition/client.js').IntuitionClient
 
 // Import the module being tested
 const {
@@ -79,7 +79,7 @@ describe('ensureProjectAtom', () => {
     mockFindAtomIds.mockResolvedValue([{ term_id: existingAtomId }])
 
     const result = await ensureProjectAtom(
-      mockIntuitionClient as any,
+      mockIntuitionClient,
       atomData,
       retryOptions
     )
@@ -99,7 +99,7 @@ describe('ensureProjectAtom', () => {
     })
 
     const result = await ensureProjectAtom(
-      mockIntuitionClient as any,
+      mockIntuitionClient,
       atomData,
       retryOptions
     )
@@ -125,7 +125,7 @@ describe('ensureProjectAtom', () => {
     })
 
     const result = await ensureProjectAtom(
-      mockIntuitionClient as any,
+      mockIntuitionClient,
       atomData,
       retryOptions
     )
@@ -144,7 +144,7 @@ describe('ensureProjectAtom', () => {
       state: { termId: '0x666' as Hex }
     })
 
-    await ensureProjectAtom(mockIntuitionClient as any, atomData, retryOptions)
+    await ensureProjectAtom(mockIntuitionClient, atomData, retryOptions)
 
     expect(mockIntuitionClient.ensureSufficientBalance).toHaveBeenCalledWith(
       1000000000000000n
@@ -159,7 +159,7 @@ describe('ensureProjectAtom', () => {
       state: { termId: '0x999' as Hex }
     })
 
-    await ensureProjectAtom(mockIntuitionClient as any, atomData, retryOptions)
+    await ensureProjectAtom(mockIntuitionClient, atomData, retryOptions)
 
     expect(mockIntuitionClient.waitForConfirmation).toHaveBeenCalledWith(txHash)
   })
@@ -169,7 +169,7 @@ describe('ensureProjectAtom', () => {
     mockCreateAtomFromThing.mockRejectedValue(new Error('Transaction failed'))
 
     await expect(
-      ensureProjectAtom(mockIntuitionClient as any, atomData, retryOptions)
+      ensureProjectAtom(mockIntuitionClient, atomData, retryOptions)
     ).rejects.toThrow(TransactionFailedError)
   })
 
@@ -183,7 +183,7 @@ describe('ensureProjectAtom', () => {
     })
 
     const result = await ensureProjectAtom(
-      mockIntuitionClient as any,
+      mockIntuitionClient,
       atomData,
       retryOptions
     )
@@ -214,7 +214,7 @@ describe('ensureContributorAtom', () => {
     mockFindAtomIds.mockResolvedValue([{ term_id: existingAtomId }])
 
     const result = await ensureContributorAtom(
-      mockIntuitionClient as any,
+      mockIntuitionClient,
       atomData,
       retryOptions
     )
@@ -233,7 +233,7 @@ describe('ensureContributorAtom', () => {
     })
 
     const result = await ensureContributorAtom(
-      mockIntuitionClient as any,
+      mockIntuitionClient,
       atomData,
       retryOptions
     )
@@ -251,11 +251,7 @@ describe('ensureContributorAtom', () => {
   it('logs contributor name in messages', async () => {
     mockFindAtomIds.mockResolvedValue([{ term_id: '0x44' as Hex }])
 
-    await ensureContributorAtom(
-      mockIntuitionClient as any,
-      atomData,
-      retryOptions
-    )
+    await ensureContributorAtom(mockIntuitionClient, atomData, retryOptions)
 
     expect(core.info).toHaveBeenCalledWith(
       expect.stringContaining(atomData.name)
@@ -311,7 +307,7 @@ describe('batchCreateContributorAtoms', () => {
       })
 
     const results = await batchCreateContributorAtoms(
-      mockIntuitionClient as any,
+      mockIntuitionClient,
       atomsData,
       retryOptions
     )
@@ -337,7 +333,7 @@ describe('batchCreateContributorAtoms', () => {
     }))
 
     const results = await batchCreateContributorAtoms(
-      mockIntuitionClient as any,
+      mockIntuitionClient,
       manyAtoms,
       retryOptions
     )
@@ -357,7 +353,7 @@ describe('batchCreateContributorAtoms', () => {
     })
 
     const results = await batchCreateContributorAtoms(
-      mockIntuitionClient as any,
+      mockIntuitionClient,
       atomsData,
       retryOptions
     )
@@ -370,7 +366,7 @@ describe('batchCreateContributorAtoms', () => {
 
   it('handles empty contributor array', async () => {
     const results = await batchCreateContributorAtoms(
-      mockIntuitionClient as any,
+      mockIntuitionClient,
       [],
       retryOptions
     )
@@ -395,7 +391,7 @@ describe('batchCreateContributorAtoms', () => {
     }))
 
     const results = await batchCreateContributorAtoms(
-      mockIntuitionClient as any,
+      mockIntuitionClient,
       exactBatchAtoms,
       retryOptions
     )
@@ -419,7 +415,7 @@ describe('batchCreateContributorAtoms', () => {
     }))
 
     const results = await batchCreateContributorAtoms(
-      mockIntuitionClient as any,
+      mockIntuitionClient,
       multipleOfBatchSize,
       retryOptions
     )

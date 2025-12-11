@@ -43,7 +43,7 @@ const mockIntuitionClient = {
     () => '0x1234567890123456789012345678901234567890' as Hex
   ),
   getMinDeposit: jest.fn(() => 1000000000000000n)
-}
+} as unknown as import('../../src/intuition/client.js').IntuitionClient
 
 // Import the module being tested
 const { processAttestations } =
@@ -109,7 +109,7 @@ describe('processAttestations', () => {
 
   it('successfully processes all contributors', async () => {
     const summary = await processAttestations(
-      mockIntuitionClient as any,
+      mockIntuitionClient,
       repository,
       contributors,
       'fail',
@@ -128,7 +128,7 @@ describe('processAttestations', () => {
 
   it('creates project atom with repository data', async () => {
     await processAttestations(
-      mockIntuitionClient as any,
+      mockIntuitionClient,
       repository,
       contributors,
       'fail',
@@ -148,7 +148,7 @@ describe('processAttestations', () => {
 
   it('creates contributor atoms with correct data', async () => {
     await processAttestations(
-      mockIntuitionClient as any,
+      mockIntuitionClient,
       repository,
       contributors,
       'fail',
@@ -170,7 +170,7 @@ describe('processAttestations', () => {
 
   it('creates attestation triples for each contributor', async () => {
     await processAttestations(
-      mockIntuitionClient as any,
+      mockIntuitionClient,
       repository,
       contributors,
       'fail',
@@ -202,7 +202,7 @@ describe('processAttestations', () => {
       })
 
     const summary = await processAttestations(
-      mockIntuitionClient as any,
+      mockIntuitionClient,
       repository,
       contributors,
       'fail',
@@ -229,7 +229,7 @@ describe('processAttestations', () => {
     })
 
     const summary = await processAttestations(
-      mockIntuitionClient as any,
+      mockIntuitionClient,
       repository,
       contributors,
       'fail',
@@ -264,7 +264,7 @@ describe('processAttestations', () => {
     })
 
     const summary = await processAttestations(
-      mockIntuitionClient as any,
+      mockIntuitionClient,
       repository,
       contributors,
       'fail',
@@ -282,7 +282,7 @@ describe('processAttestations', () => {
 
     await expect(
       processAttestations(
-        mockIntuitionClient as any,
+        mockIntuitionClient,
         repository,
         contributors,
         'fail',
@@ -302,7 +302,7 @@ describe('processAttestations', () => {
       .mockRejectedValueOnce(new Error('Contributor 2 failed'))
 
     const summary = await processAttestations(
-      mockIntuitionClient as any,
+      mockIntuitionClient,
       repository,
       contributors,
       'warn',
@@ -320,7 +320,7 @@ describe('processAttestations', () => {
 
   it('logs progress messages', async () => {
     await processAttestations(
-      mockIntuitionClient as any,
+      mockIntuitionClient,
       repository,
       contributors,
       'fail',
@@ -337,7 +337,7 @@ describe('processAttestations', () => {
 
   it('logs contributor usernames in messages', async () => {
     await processAttestations(
-      mockIntuitionClient as any,
+      mockIntuitionClient,
       repository,
       contributors,
       'fail',
@@ -361,7 +361,7 @@ describe('processAttestations', () => {
     ]
 
     await processAttestations(
-      mockIntuitionClient as any,
+      mockIntuitionClient,
       repository,
       contributorWithoutUsername,
       'fail',
@@ -378,7 +378,7 @@ describe('processAttestations', () => {
 
     await expect(
       processAttestations(
-        mockIntuitionClient as any,
+        mockIntuitionClient,
         repository,
         contributors,
         'fail',
@@ -393,7 +393,7 @@ describe('processAttestations', () => {
 
     await expect(
       processAttestations(
-        mockIntuitionClient as any,
+        mockIntuitionClient,
         repository,
         contributors,
         'fail',
@@ -408,7 +408,7 @@ describe('processAttestations', () => {
 
     await expect(
       processAttestations(
-        mockIntuitionClient as any,
+        mockIntuitionClient,
         repository,
         contributors,
         'fail',

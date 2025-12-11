@@ -35,7 +35,7 @@ const TEST_BLOCK_NUMBER = 12345n
 const mockPublicClient = {
   getBalance: jest.fn(async () => TEST_BALANCE),
   getBlockNumber: jest.fn(async () => TEST_BLOCK_NUMBER),
-  waitForTransactionReceipt: jest.fn(async (params: any) => ({
+  waitForTransactionReceipt: jest.fn(async (params: { hash: string }) => ({
     blockNumber: TEST_BLOCK_NUMBER + 1n,
     transactionHash: params.hash,
     status: 'success'

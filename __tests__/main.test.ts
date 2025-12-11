@@ -3,7 +3,6 @@
  */
 import { jest } from '@jest/globals'
 import * as core from '../__fixtures__/core.js'
-import type * as github from '@actions/github'
 
 // Create mock GitHub context
 const mockGitHubContext = {
@@ -152,7 +151,7 @@ describe('main.ts', () => {
   it('fails when not triggered by pull_request event', async () => {
     // Temporarily modify the event name
     const originalEventName = mockGitHubContext.eventName
-    ;(mockGitHubContext as any).eventName = 'push'
+    mockGitHubContext.eventName = 'push'
 
     await run()
 
@@ -163,14 +162,17 @@ describe('main.ts', () => {
     )
 
     // Restore the event name
-    ;(mockGitHubContext as any).eventName = originalEventName
+    mockGitHubContext.eventName = originalEventName
   })
 
   it('handles errors gracefully', async () => {
     // Mock validation to throw an error
     const { validateAndParseInputs } =
       await import('../src/services/validation.js')
-    ;(validateAndParseInputs as any).mockImplementationOnce(() => {
+    const mockFn = validateAndParseInputs as jest.MockedFunction<
+      typeof validateAndParseInputs
+    >
+    mockFn.mockImplementationOnce(() => {
       throw new Error('Invalid input')
     })
 
