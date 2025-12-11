@@ -198,7 +198,7 @@ For a PR with 3 contributors:
 This action is built with TypeScript and uses:
 
 - [@0xintuition/sdk](https://www.npmjs.com/package/@0xintuition/sdk) -
-  High-level Intuition Protocol SDK (software development kit)
+  High-level Intuition Protocol software development kit (SDK)
 - [@0xintuition/protocol](https://www.npmjs.com/package/@0xintuition/protocol) -
   Contract ABIs and addresses
 - [viem](https://viem.sh) - Ethereum library
