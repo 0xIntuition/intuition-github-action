@@ -51,11 +51,18 @@ export default [
         projectService: {
           allowDefaultProject: [
             '__fixtures__/*.ts',
+            '__fixtures__/github/*.ts',
+            '__fixtures__/intuition/*.ts',
             '__tests__/*.ts',
+            '__tests__/github/*.ts',
+            '__tests__/intuition/*.ts',
+            '__tests__/services/*.ts',
+            '__tests__/utils/*.ts',
             'eslint.config.mjs',
             'jest.config.js',
             'rollup.config.ts'
-          ]
+          ],
+          maximumDefaultProjectFileMatchCount_THIS_WILL_SLOW_DOWN_LINTING: 25
         },
         tsconfigRootDir: import.meta.dirname
       }

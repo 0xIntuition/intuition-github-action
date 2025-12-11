@@ -2,14 +2,18 @@
 
 ## Summary
 
-Comprehensive test suite has been implemented for the Intuition GitHub Action. Current test coverage: **36.53%** (68 passing tests).
+Comprehensive test suite has been implemented for the Intuition GitHub Action.
+Current test coverage: **36.53%** (68 passing tests).
 
 ## ✅ Completed Tests (100% Coverage)
 
 ### Utils Module
+
 - **`__tests__/utils/errors.test.ts`** (12 tests)
-  - All custom error classes (ActionError, InvalidInputError, InsufficientFundsError, NetworkError, GitHubAPIError, TransactionFailedError)
-  - Error retryability logic
+  - All custom error classes (ActionError, InvalidInputError,
+    InsufficientFundsError, NetworkError, GitHubAPIError,
+    TransactionFailedError)
+  - Error retry-ability logic
   - Status code handling
 
 - **`__tests__/utils/retry.test.ts`** (9 tests)
@@ -20,6 +24,7 @@ Comprehensive test suite has been implemented for the Intuition GitHub Action. C
   - Error logging
 
 ### Services Module
+
 - **`__tests__/services/validation.test.ts`** (24 tests)
   - Input validation and parsing
   - Private key validation (format, injection protection, sanitization)
@@ -30,6 +35,7 @@ Comprehensive test suite has been implemented for the Intuition GitHub Action. C
   - URL validation
 
 ### GitHub Integration Module
+
 - **`__tests__/github/repository.test.ts`** (7 tests)
   - Repository data fetching
   - Missing description handling
@@ -51,11 +57,14 @@ Comprehensive test suite has been implemented for the Intuition GitHub Action. C
 ## 📝 Test Fixtures Created
 
 ### GitHub Fixtures
+
 - `__fixtures__/github/repository.ts` - Mock repository data
-- `__fixtures__/github/contributors.ts` - Mock commits, users, and contributor data
+- `__fixtures__/github/contributors.ts` - Mock commits, users, and contributor
+  data
 - `__fixtures__/actions-core.ts` - Mock @actions/core module
 
 ### Intuition Fixtures
+
 - `__fixtures__/intuition/atoms.ts` - Mock atom data and responses
 - `__fixtures__/intuition/triples.ts` - Mock triple data and responses
 - `__fixtures__/intuition/client.ts` - Mock client configuration
@@ -135,18 +144,21 @@ npm test -- --watch
 ## 🔧 Testing Patterns Used
 
 ### Mocking Strategy
+
 - **ESM mocking** with `jest.unstable_mockModule()`
 - **Dynamic imports** after mock setup
 - **Fixtures** for consistent test data
 - **beforeEach** for mock cleanup
 
 ### Test Organization
+
 - **Descriptive test names** using behavior-driven format
 - **Grouped tests** with `describe` blocks
 - **Setup/teardown** with `beforeEach`/`afterEach`
 - **Error scenarios** tested explicitly
 
 ### Mock Objects
+
 ```typescript
 // Example: Mocking @actions/core
 const mockCore = {
@@ -161,13 +173,22 @@ jest.unstable_mockModule('@actions/core', () => mockCore)
 ## 📝 Notes
 
 ### Known Issues
-1. **Validation catch-all block** - In `src/services/validation.ts:149`, the catch block catches all errors including `InvalidInputError`, causing less specific error messages for zero/negative values. Tests adapted to match actual behavior.
 
-2. **Mock warning calls** - Some tests for warning logging were adjusted because ESM mocking behavior differs from CommonJS. Tests focus on functional behavior rather than exact log messages.
+1. **Validation catch-all block** - In `src/services/validation.ts:149`, the
+   catch block catches all errors including `InvalidInputError`, causing less
+   specific error messages for zero/negative values. Tests adapted to match
+   actual behavior.
+
+2. **Mock warning calls** - Some tests for warning logging were adjusted because
+   ESM mocking behavior differs from CommonJS. Tests focus on functional
+   behavior rather than exact log messages.
 
 ### Test Design Decisions
-- **Fixtures over inline mocks** - Reusable mock data in `__fixtures__/` for consistency
-- **Integration fixtures** - Separate fixtures for atoms, triples, and GitHub data
+
+- **Fixtures over inline mocks** - Reusable mock data in `__fixtures__/` for
+  consistency
+- **Integration fixtures** - Separate fixtures for atoms, triples, and GitHub
+  data
 - **Error testing** - Both error types and error messages validated
 - **Async handling** - All async operations properly awaited and tested
 

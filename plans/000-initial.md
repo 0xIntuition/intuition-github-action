@@ -7,8 +7,8 @@ that creates on-chain contributor attestations using the Intuition Protocol.
 When a PR is merged, the action will:
 
 1. Create/verify an atom representing the repository
-2. Create/verify atoms for all commit authors in the PR
-3. Create attestation triples (or add deposits to existing ones) linking
+1. Create/verify atoms for all commit authors in the PR
+1. Create attestation triples (or add deposits to existing ones) linking
    contributors to the project
 
 ## User Requirements Summary
@@ -26,7 +26,7 @@ When a PR is merged, the action will:
 
 ### File Structure
 
-```
+```text
 src/
 ├── intuition/
 │   ├── client.ts          # Protocol SDK wrapper with retry logic
@@ -246,9 +246,9 @@ async function run(): Promise<void> {
 ## Performance Optimizations
 
 1. **Batch Operations:** Check multiple atom existence in parallel
-2. **Parallel Processing:** Process contributors with concurrency limit
-3. **Caching:** Cache GitHub user profiles to avoid duplicate API calls
-4. **Balance Pre-check:** Verify sufficient funds before processing
+1. **Parallel Processing:** Process contributors with concurrency limit
+1. **Caching:** Cache GitHub user profiles to avoid duplicate API calls
+1. **Balance Pre-check:** Verify sufficient funds before processing
 
 ## Edge Cases to Handle
 
@@ -287,10 +287,10 @@ jobs:
 ## Critical Files for Implementation
 
 1. **src/main.ts** - Entry point and orchestration
-2. **src/intuition/client.ts** - Protocol SDK wrapper
-3. **src/services/attestation.ts** - Business logic
-4. **src/github/contributors.ts** - PR commit author fetching
-5. **action.yml** - Action interface definition
+1. **src/intuition/client.ts** - Protocol SDK wrapper
+1. **src/services/attestation.ts** - Business logic
+1. **src/github/contributors.ts** - PR commit author fetching
+1. **action.yml** - Action interface definition
 
 ## Implementation Sequence
 
@@ -299,41 +299,41 @@ jobs:
    - Update action.yml with inputs/outputs
    - Create network configurations and constants
 
-2. **Phase 2: Core Infrastructure**
+1. **Phase 2: Core Infrastructure**
    - Implement custom error classes
    - Implement retry utility
    - Implement input validation
    - Set up Intuition Protocol client wrapper
 
-3. **Phase 3: GitHub Integration**
+1. **Phase 3: GitHub Integration**
    - Implement repository data fetching
    - Implement contributor data fetching with pagination
    - Handle edge cases (missing profiles, deleted accounts)
 
-4. **Phase 4: Intuition Protocol Operations**
+1. **Phase 4: Intuition Protocol Operations**
    - Implement atom creation and existence checking
    - Implement triple creation and deposit logic
    - Add balance checking
 
-5. **Phase 5: Main Orchestration**
+1. **Phase 5: Main Orchestration**
    - Implement attestation service
    - Wire up main execution flow
    - Add comprehensive logging
    - Set action outputs
 
-6. **Phase 6: Testing**
+1. **Phase 6: Testing**
    - Create test fixtures
    - Write unit tests for each module
    - Write integration tests for main flow
    - Test error scenarios and retry logic
 
-7. **Phase 7: Documentation**
-   - Update README with usage instructions
+1. **Phase 7: Documentation**
+   - Update readme with usage instructions
    - Document setup process (wallet, funding)
    - Add troubleshooting guide
    - Document architecture
 
-8. **Phase 8: Build & Verification**
+1. **Phase 8: Build & Verification**
    - Run `npm run bundle` to generate dist/index.js
    - Verify all tests pass
    - Test locally with .env file
@@ -349,27 +349,27 @@ jobs:
    - Process multiple contributors per transaction
    - Requires careful error handling (one failure affects batch)
 
-2. **Non-GitHub Contributors:** Use commit metadata
+1. **Non-GitHub Contributors:** Use commit metadata
    - Create atoms using commit author name/email when GitHub profile unavailable
    - Construct profile URL as `https://github.com/{username}` even if user
      doesn't exist
    - Gracefully handle 404s on profile fetch
 
-3. **Transaction Confirmations:** Wait for confirmations
+1. **Transaction Confirmations:** Wait for confirmations
    - Wait for configurable number of block confirmations
    - Ensure transactions are finalized before marking as complete
    - Add `confirmations` to network configuration
 
-4. **Network Selection:** Use library-provided networks
+1. **Network Selection:** Use library-provided networks
    - Import `intuitionTestnet` and `intuitionMainnet` from
      `@0xintuition/protocol`
    - User selects via action input
 
-5. **Contributors:** All commit authors (not just PR opener)
+1. **Contributors:** All commit authors (not just PR opener)
 
-6. **Existing Triples:** Always deposit (even if exists)
+1. **Existing Triples:** Always deposit (even if exists)
 
-7. **Error Handling:** Configurable (fail or warn mode)
+1. **Error Handling:** Configurable (fail or warn mode)
 
 ## Implementation Clarifications Based on Decisions
 
@@ -530,7 +530,7 @@ export const NETWORK_DEFAULTS = {
    - Test all error scenarios
 
 8. **Phase 8: Documentation & Build**
-   - Update README with usage
+   - Update readme with usage
    - Document batching behavior
    - Document non-GitHub user handling
    - Run `npm run bundle`
@@ -737,7 +737,7 @@ Will determine during Phase 1 implementation whether to use:
 11. **Notification System:** Notify contributors when they receive attestations
 12. **Gas Optimization:** Dynamic gas pricing based on network conditions
 13. **Multi-Chain Support:** Extend beyond Base to other EVM chains
-14. **Attestation Templates:** Pre-configured attestation types (bug fix,
+14. **Attestation Templates:** Pre-configured attestation types (bugfix,
     feature, docs)
 
 ---

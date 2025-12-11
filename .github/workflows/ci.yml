@@ -57,8 +57,16 @@ jobs:
         id: test-action
         uses: ./
         with:
-          milliseconds: 2000
+          private-key:
+            ${{ secrets.TEST_PRIVATE_KEY ||
+            '0x0000000000000000000000000000000000000000000000000000000000000001'
+            }}
+          network: testnet
+          failure-mode: warn
 
       - name: Print Output
         id: output
-        run: echo "${{ steps.test-action.outputs.time }}"
+        run: |
+          echo "Project Atom ID: ${{ steps.test-action.outputs.project-atom-id }}"
+          echo "Contributors: ${{ steps.test-action.outputs.contributor-count }}"
+          echo "Attestations Created: ${{ steps.test-action.outputs.attestations-created }}"

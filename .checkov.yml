@@ -5,3 +5,5 @@ quiet: true
 skip-path:
   - coverage
   - node_modules
+skip-check:
+  - CKV2_GHA_1 # Skip "write-all" check - we use job-level permissions, not top-level
