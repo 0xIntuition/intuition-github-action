@@ -1,0 +1,10 @@
+# Gitleaks configuration for allowing test fixtures
+# See: https://github.com/gitleaks/gitleaks
+
+title = "Intuition GitHub Action - Gitleaks Config"
+
+[allowlist]
+description = "Allow mock keys in test fixtures"
+paths = [
+  '''__fixtures__/.*'''
+]

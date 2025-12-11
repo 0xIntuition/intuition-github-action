@@ -7,8 +7,8 @@ that creates on-chain contributor attestations using the Intuition Protocol.
 When a PR is merged, the action will:
 
 1. Create/verify an atom representing the repository
-2. Create/verify atoms for all commit authors in the PR
-3. Create attestation triples (or add deposits to existing ones) linking
+1. Create/verify atoms for all commit authors in the PR
+1. Create attestation triples (or add deposits to existing ones) linking
    contributors to the project
 
 ## User Requirements Summary
@@ -26,7 +26,7 @@ When a PR is merged, the action will:
 
 ### File Structure
 
-```
+```text
 src/
 ├── intuition/
 │   ├── client.ts          # Protocol SDK wrapper with retry logic
@@ -246,9 +246,9 @@ async function run(): Promise<void> {
 ## Performance Optimizations
 
 1. **Batch Operations:** Check multiple atom existence in parallel
-2. **Parallel Processing:** Process contributors with concurrency limit
-3. **Caching:** Cache GitHub user profiles to avoid duplicate API calls
-4. **Balance Pre-check:** Verify sufficient funds before processing
+1. **Parallel Processing:** Process contributors with concurrency limit
+1. **Caching:** Cache GitHub user profiles to avoid duplicate API calls
+1. **Balance Pre-check:** Verify sufficient funds before processing
 
 ## Edge Cases to Handle
 
@@ -287,10 +287,10 @@ jobs:
 ## Critical Files for Implementation
 
 1. **src/main.ts** - Entry point and orchestration
-2. **src/intuition/client.ts** - Protocol SDK wrapper
-3. **src/services/attestation.ts** - Business logic
-4. **src/github/contributors.ts** - PR commit author fetching
-5. **action.yml** - Action interface definition
+1. **src/intuition/client.ts** - Protocol SDK wrapper
+1. **src/services/attestation.ts** - Business logic
+1. **src/github/contributors.ts** - PR commit author fetching
+1. **action.yml** - Action interface definition
 
 ## Implementation Sequence
 
@@ -328,7 +328,7 @@ jobs:
    - Test error scenarios and retry logic
 
 7. **Phase 7: Documentation**
-   - Update README with usage instructions
+   - Update readme with usage instructions
    - Document setup process (wallet, funding)
    - Add troubleshooting guide
    - Document architecture
@@ -530,7 +530,7 @@ export const NETWORK_DEFAULTS = {
    - Test all error scenarios
 
 8. **Phase 8: Documentation & Build**
-   - Update README with usage
+   - Update readme with usage
    - Document batching behavior
    - Document non-GitHub user handling
    - Run `npm run bundle`
@@ -737,7 +737,7 @@ Will determine during Phase 1 implementation whether to use:
 11. **Notification System:** Notify contributors when they receive attestations
 12. **Gas Optimization:** Dynamic gas pricing based on network conditions
 13. **Multi-Chain Support:** Extend beyond Base to other EVM chains
-14. **Attestation Templates:** Pre-configured attestation types (bug fix,
+14. **Attestation Templates:** Pre-configured attestation types (bugfix,
     feature, docs)
 
 ---

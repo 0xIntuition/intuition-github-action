@@ -13,7 +13,7 @@ Current test coverage: **36.53%** (68 passing tests).
   - All custom error classes (ActionError, InvalidInputError,
     InsufficientFundsError, NetworkError, GitHubAPIError,
     TransactionFailedError)
-  - Error retryability logic
+  - Error retry-ability logic
   - Status code handling
 
 - **`__tests__/utils/retry.test.ts`** (9 tests)

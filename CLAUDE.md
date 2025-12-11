@@ -47,7 +47,7 @@ npm run local-action
 npm run package:watch
 ```
 
-## Build System
+## Build tool
 
 The action uses **Rollup** to bundle TypeScript into a single JavaScript file:
 
@@ -66,14 +66,14 @@ dist directory is up-to-date.
 
 1. `src/index.ts` - Simple entrypoint that imports and executes `run()` from
    `main.ts`
-2. `src/main.ts` - Contains the main action logic in the `run()` function
-3. Action reads inputs via `@actions/core` package (`core.getInput()`)
-4. Action sets outputs via `core.setOutput()`
-5. Errors are caught and reported via `core.setFailed()`
+1. `src/main.ts` - Contains the main action logic in the `run()` function
+1. Action reads inputs via `@actions/core` package (`core.getInput()`)
+1. Action sets outputs via `core.setOutput()`
+1. Errors are caught and reported via `core.setFailed()`
 
 ### TypeScript Configuration
 
-- Target: ES2022
+- Target: ECMAScript 2022
 - Module system: NodeNext (ESM with `.js` imports in TypeScript files)
 - Strict mode enabled
 - Output directory: `./dist` (used for type checking, not runtime)
