@@ -6,7 +6,7 @@ are merged, using the [Intuition Protocol](https://intuition.systems).
 ## Features
 
 - Creates on-chain attestations for ALL commit authors in merged PRs
-- Supports both Intuition testnet (Base Sepolia) and mainnet (Base)
+- Supports both Intuition testnet and mainnet
 - Handles contributors without GitHub profiles using commit metadata
 - Batch operations for gas efficiency
 - Configurable error handling (fail or warn mode)
@@ -139,29 +139,28 @@ Each attestation creates a triple:
 
 ## Wallet Funding
 
-### Testnet (Base Sepolia)
+### Testnet (Intuition Testnet)
 
-- Get test ETH from
-  [Base Sepolia faucet](https://www.alchemy.com/faucets/base-sepolia)
-- Obtain test TRUST tokens from the Intuition testnet
+- Get test tTRUST tokens from the
+  [Intuition Testnet faucet](https://testnet.hub.intuition.systems/)
+- tTRUST is used for both gas fees and attestation deposits
 
-### Mainnet (Base)
+### Mainnet (Intuition)
 
-- Fund wallet with ETH for gas
-- Obtain TRUST tokens for attestation deposits
+- Fund wallet with TRUST tokens for gas and attestation deposits
 
 **Cost Estimation**:
 
-- Each atom creation: ~0.001-0.01 TRUST
-- Each triple creation: ~0.001-0.01 TRUST
-- Plus gas costs in ETH
+- Each atom creation: ~0.001-0.01 TRUST (tTRUST on testnet)
+- Each triple creation: ~0.001-0.01 TRUST (tTRUST on testnet)
+- Plus gas costs (paid in TRUST/tTRUST)
 
 For a PR with 3 contributors:
 
 - 1 project atom (if new)
 - 3 contributor atoms (if new)
 - 3 attestation triples
-- Estimated: 0.007-0.07 TRUST + gas
+- Estimated: 0.007-0.07 TRUST/tTRUST total (gas + deposits)
 
 ## Error Handling
 
@@ -183,7 +182,7 @@ For a PR with 3 contributors:
 
 1. **Insufficient Balance**
    - Error: `Insufficient balance`
-   - Solution: Fund the wallet with more TRUST tokens
+   - Solution: Fund the wallet with more TRUST/tTRUST tokens from the faucet
 
 2. **Network Errors**
    - Automatically retried with exponential backoff
@@ -238,6 +237,78 @@ echo "INPUT_GITHUB-TOKEN=$GITHUB_TOKEN" >> .env
 # Run locally
 npm run local-action
 ```
+
+### Integration Testing
+
+The project includes comprehensive integration tests that make **real network
+calls** to Intuition Testnet:
+
+```bash
+# Setup (one-time)
+cp .env.integration.example .env.local
+# Edit .env.local with your test wallet private key
+
+# Run integration tests
+npm run test:integration
+
+# Run specific test file
+npm run test:integration -- client.integration.test.ts
+
+# Run in watch mode
+npm run test:integration:watch
+```
+
+**Important Notes:**
+
+- Integration tests create actual on-chain transactions
+- Tests cost testnet tTRUST tokens (gas and deposits)
+- Tests take 20-30 minutes to complete
+- Tests are excluded from CI and `npm test`
+- See [`__tests__/integration/README.md`](__tests__/integration/README.md) for
+  detailed setup instructions
+
+**Test Coverage:**
+
+- ✅ Real client initialization and balance checking
+- ✅ Atom creation on Intuition Testnet
+- ✅ Triple creation and deposits
+- ✅ End-to-end attestation flows
+- ✅ Cost tracking and transaction verification
+
+### Post-Merge Testing Workflow
+
+An automated test workflow runs after PRs merge to main to validate the action
+in a real-world scenario:
+
+**Workflow:** `.github/workflows/test-attestation-post-merge.yml`
+
+**Behavior:**
+
+- Triggers automatically when PRs are merged to main
+- Runs the action against the actual merged PR
+- Creates real attestations on Intuition Testnet
+- Validates outputs and provides Intuition Explorer transaction links
+- Non-blocking: failures don't prevent PR merges
+
+**Setup:**
+
+1. Add `INTUITION_PRIVATE_KEY` secret to repository:
+   - Navigate to: Settings → Secrets and variables → Actions
+   - Create new secret: `INTUITION_PRIVATE_KEY`
+   - Use a dedicated testnet wallet (separate from production)
+
+2. Fund the test wallet:
+   - Intuition Testnet native tokens (tTRUST) for gas and deposits
+   - Faucet: https://testnet.hub.intuition.systems/
+   - Recommended: 0.1 tTRUST
+
+3. Workflow runs automatically on merge
+
+**View results:** Actions tab → "Test Post-Merge Attestation"
+
+**Expected costs per PR (3 contributors):**
+
+- 0.007-0.07 tTRUST tokens (gas + deposits)
 
 ## Security
 

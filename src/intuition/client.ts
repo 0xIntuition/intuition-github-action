@@ -12,7 +12,11 @@ import {
   type WalletClient
 } from 'viem'
 import { privateKeyToAccount } from 'viem/accounts'
-import { intuitionMainnet, intuitionTestnet } from '@0xintuition/protocol'
+import {
+  intuitionMainnet,
+  intuitionTestnet,
+  getMultiVaultAddressFromChainId
+} from '@0xintuition/protocol'
 import type { IntuitionClientConfig, TransactionResult } from './types.js'
 import { InsufficientFundsError, NetworkError } from '../utils/errors.js'
 import { withRetry } from '../utils/retry.js'
@@ -121,6 +125,17 @@ export class IntuitionClient {
    */
   getMinDeposit(): bigint {
     return this.minDeposit
+  }
+
+  /**
+   * Get the MultiVault contract address for the current network
+   */
+  getMultiVaultAddress(): Hex {
+    const chainId = this.publicClient.chain?.id
+    if (!chainId) {
+      throw new Error('Chain ID not available from public client')
+    }
+    return getMultiVaultAddressFromChainId(chainId)
   }
 
   /**

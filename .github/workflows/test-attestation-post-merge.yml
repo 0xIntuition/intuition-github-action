@@ -1,0 +1,151 @@
+name: Test Post-Merge Attestation
+
+on:
+  pull_request:
+    types: [closed]
+    branches:
+      - main
+
+permissions:
+  contents: read
+  pull-requests: read
+
+jobs:
+  test-attestation:
+    name: Test Contributor Attestation
+    # Only run if PR was actually merged (not just closed)
+    if: github.event.pull_request.merged == true
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        id: checkout
+        uses: actions/checkout@v6
+        with:
+          ref: main # Ensure we're testing the merged code
+
+      - name: Setup Node.js
+        id: setup-node
+        uses: actions/setup-node@v6
+        with:
+          node-version-file: .node-version
+          cache: npm
+
+      - name: Install Dependencies
+        id: npm-ci
+        run: npm ci
+
+      - name: Build Action
+        id: npm-bundle
+        run: npm run bundle
+
+      - name: Run Attestation Action (Intuition Testnet)
+        id: attestation
+        uses: ./
+        with:
+          private-key: ${{ secrets.INTUITION_PRIVATE_KEY }}
+          network: testnet
+          failure-mode: warn # Don't fail tests on attestation issues
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+        continue-on-error: true # Capture outputs even if action fails
+
+      - name: Validate Outputs
+        id: validate
+        if: steps.attestation.outcome == 'success'
+        run: |
+          echo "=== Attestation Results ==="
+          echo "Project Atom ID: ${{ steps.attestation.outputs.project-atom-id }}"
+          echo "Contributors: ${{ steps.attestation.outputs.contributor-count }}"
+          echo "Created: ${{ steps.attestation.outputs.attestations-created }}"
+          echo "Updated: ${{ steps.attestation.outputs.attestations-updated }}"
+          echo "Transaction Hashes: ${{ steps.attestation.outputs.transaction-hashes }}"
+          echo "Total Cost: ${{ steps.attestation.outputs.total-cost }}"
+          echo ""
+
+          # Validate outputs are set
+          if [ -z "${{ steps.attestation.outputs.project-atom-id }}" ]; then
+            echo "ERROR: project-atom-id output is empty"
+            exit 1
+          fi
+
+          if [ -z "${{ steps.attestation.outputs.contributor-count }}" ]; then
+            echo "ERROR: contributor-count output is empty"
+            exit 1
+          fi
+
+          # Validate project-atom-id format (0x followed by hex)
+          if ! echo "${{ steps.attestation.outputs.project-atom-id }}" | grep -qE '^0x[0-9a-fA-F]+$'; then
+            echo "ERROR: project-atom-id has invalid format"
+            exit 1
+          fi
+
+          # Validate contributor-count is a number > 0
+          count=${{ steps.attestation.outputs.contributor-count }}
+          if ! [[ "$count" =~ ^[0-9]+$ ]] || [ "$count" -eq 0 ]; then
+            echo "ERROR: contributor-count must be a positive number"
+            exit 1
+          fi
+
+          # Validate transaction-hashes is valid JSON array
+          if ! echo '${{ steps.attestation.outputs.transaction-hashes }}' | jq empty; then
+            echo "ERROR: transaction-hashes is not valid JSON"
+            exit 1
+          fi
+
+          echo "✓ All output validations passed"
+
+      - name: Verify On-Chain Data
+        id: verify
+        if: steps.attestation.outcome == 'success'
+        run: |
+          echo "=== On-Chain Verification ==="
+          echo "Verifying attestations on Intuition Testnet..."
+
+          # Parse transaction hashes
+          tx_hashes='${{ steps.attestation.outputs.transaction-hashes }}'
+          tx_count=$(echo "$tx_hashes" | jq 'length')
+
+          echo "Transaction count: $tx_count"
+
+          # Output explorer links for manual verification
+          echo ""
+          echo "Verify transactions on Intuition Testnet Explorer:"
+          echo "$tx_hashes" | jq -r '.[]' | while read hash; do
+            echo "  https://testnet.explorer.intuition.systems/tx/$hash"
+          done
+
+          # Output cost in human-readable format
+          total_cost_wei=${{ steps.attestation.outputs.total-cost }}
+          total_cost_ttrust=$(echo "scale=18; $total_cost_wei / 1000000000000000000" | bc -l)
+          echo ""
+          echo "Total cost: $total_cost_wei wei ($total_cost_ttrust tTRUST)"
+
+      - name: Report Test Failure
+        id: report-failure
+        if: steps.attestation.outcome == 'failure'
+        run: |
+          echo "=== Attestation Test Failed ==="
+          echo "The attestation action failed to complete."
+          echo "This may be due to:"
+          echo "  - Insufficient wallet balance"
+          echo "  - Network connectivity issues"
+          echo "  - Invalid private key"
+          echo "  - GitHub API rate limits"
+          echo ""
+          echo "Check the action logs above for details."
+          exit 1
+
+      - name: Summary
+        id: summary
+        if: always()
+        run: |
+          echo "=== Test Summary ==="
+          echo "PR #${{ github.event.pull_request.number }}: ${{ github.event.pull_request.title }}"
+          echo "Merged by: @${{ github.event.pull_request.user.login }}"
+          echo "Attestation outcome: ${{ steps.attestation.outcome }}"
+
+          if [ "${{ steps.attestation.outcome }}" == "success" ]; then
+            echo "✓ Post-merge attestation test PASSED"
+          else
+            echo "✗ Post-merge attestation test FAILED"
+          fi

@@ -54,7 +54,7 @@ export async function ensureProjectAtom(
 
       const result = await createAtomFromThing(
         {
-          address: client.getAddress(),
+          address: client.getMultiVaultAddress(),
           walletClient: client.getWalletClient(),
           publicClient: client.getPublicClient()
         },
@@ -138,7 +138,7 @@ export async function ensureContributorAtom(
 
       const result = await createAtomFromThing(
         {
-          address: client.getAddress(),
+          address: client.getMultiVaultAddress(),
           walletClient: client.getWalletClient(),
           publicClient: client.getPublicClient()
         },
