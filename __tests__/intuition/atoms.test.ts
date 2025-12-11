@@ -1,5 +1,17 @@
 /**
  * Unit tests for atom creation functions
+ *
+ * Covers:
+ * - Project and contributor atom creation
+ * - Existence checking via findAtomIds
+ * - Retry logic and error handling
+ * - Batch operations with configurable batch sizes
+ * - Edge cases: empty arrays, boundary conditions
+ *
+ * Mocking considerations:
+ * - Uses jest.unstable_mockModule for ESM compatibility
+ * - Mocks @0xintuition/sdk functions for atom operations
+ * - IntuitionClient is mocked to avoid network calls
  */
 import { jest } from '@jest/globals'
 import { describe, it, expect, beforeEach } from '@jest/globals'
@@ -18,19 +30,22 @@ jest.unstable_mockModule('@0xintuition/sdk', () => ({
   createAtomFromThing: mockCreateAtomFromThing
 }))
 
+// Test constants
+const TEST_MIN_DEPOSIT = 1000000000000000n
+const TEST_BLOCK_NUMBER = 12345n
+const TEST_WALLET_ADDRESS = '0x1234567890123456789012345678901234567890' as Hex
+
 // Create mock IntuitionClient
 const mockIntuitionClient = {
-  getAddress: jest.fn(
-    () => '0x1234567890123456789012345678901234567890' as Hex
-  ),
+  getAddress: jest.fn(() => TEST_WALLET_ADDRESS),
   getWalletClient: jest.fn(() => ({})),
   getPublicClient: jest.fn(() => ({})),
-  getMinDeposit: jest.fn(() => 1000000000000000n),
+  getMinDeposit: jest.fn(() => TEST_MIN_DEPOSIT),
   ensureSufficientBalance: jest.fn(async () => undefined),
   waitForConfirmation: jest.fn(async (hash: Hex) => ({
     hash,
     confirmed: true,
-    blockNumber: 12345n
+    blockNumber: TEST_BLOCK_NUMBER
   }))
 }
 
@@ -351,5 +366,65 @@ describe('batchCreateContributorAtoms', () => {
     expect(results[0].existed).toBe(true)
     expect(results[1].existed).toBe(false)
     expect(results[2].existed).toBe(true)
+  })
+
+  it('handles empty contributor array', async () => {
+    const results = await batchCreateContributorAtoms(
+      mockIntuitionClient as any,
+      [],
+      retryOptions
+    )
+
+    expect(results).toHaveLength(0)
+    expect(mockFindAtomIds).not.toHaveBeenCalled()
+    expect(mockCreateAtomFromThing).not.toHaveBeenCalled()
+  })
+
+  it('handles exactly one batch (10 items)', async () => {
+    mockFindAtomIds.mockResolvedValue([])
+    mockCreateAtomFromThing.mockResolvedValue({
+      transactionHash: '0xaa' as Hex,
+      state: { termId: '0xbb' as Hex }
+    })
+
+    const exactBatchAtoms = Array.from({ length: 10 }, (_, i) => ({
+      name: `User ${i}`,
+      description: `Contributor: user${i}`,
+      url: `https://github.com/user${i}`,
+      image: `https://avatars.githubusercontent.com/u/${i}`
+    }))
+
+    const results = await batchCreateContributorAtoms(
+      mockIntuitionClient as any,
+      exactBatchAtoms,
+      retryOptions
+    )
+
+    expect(results).toHaveLength(10)
+    expect(mockCreateAtomFromThing).toHaveBeenCalledTimes(10)
+  })
+
+  it('handles multiple of batch size (20 items)', async () => {
+    mockFindAtomIds.mockResolvedValue([])
+    mockCreateAtomFromThing.mockResolvedValue({
+      transactionHash: '0xcc' as Hex,
+      state: { termId: '0xdd' as Hex }
+    })
+
+    const multipleOfBatchSize = Array.from({ length: 20 }, (_, i) => ({
+      name: `User ${i}`,
+      description: `Contributor: user${i}`,
+      url: `https://github.com/user${i}`,
+      image: `https://avatars.githubusercontent.com/u/${i}`
+    }))
+
+    const results = await batchCreateContributorAtoms(
+      mockIntuitionClient as any,
+      multipleOfBatchSize,
+      retryOptions
+    )
+
+    expect(results).toHaveLength(20)
+    expect(mockCreateAtomFromThing).toHaveBeenCalledTimes(20)
   })
 })

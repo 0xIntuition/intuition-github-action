@@ -1,5 +1,17 @@
 /**
  * Unit tests for triple creation functions
+ *
+ * Covers:
+ * - Attestation triple creation (contributor -> contributed to -> project)
+ * - Triple existence checking and ID calculation
+ * - Deposit handling for triples
+ * - Retry logic and error handling
+ * - Batch triple creation operations
+ *
+ * Mocking considerations:
+ * - Uses jest.unstable_mockModule for ESM compatibility
+ * - Mocks @0xintuition/sdk functions for triple operations
+ * - IntuitionClient is mocked to avoid network calls
  */
 import { jest } from '@jest/globals'
 import { describe, it, expect, beforeEach } from '@jest/globals'

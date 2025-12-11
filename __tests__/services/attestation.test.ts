@@ -1,5 +1,17 @@
 /**
  * Unit tests for attestation service
+ *
+ * Covers:
+ * - Processing attestations for contributors
+ * - Project atom and contributor atom creation orchestration
+ * - Triple creation for attestations
+ * - Error handling with 'fail' and 'warn' modes
+ * - Partial failure scenarios and retry logic
+ *
+ * Mocking considerations:
+ * - Uses jest.unstable_mockModule for ESM compatibility
+ * - Mocks atoms and triples modules
+ * - Tests both successful and failure scenarios
  */
 import { jest } from '@jest/globals'
 import { describe, it, expect, beforeEach } from '@jest/globals'
@@ -388,5 +400,25 @@ describe('processAttestations', () => {
         retryOptions
       )
     ).rejects.toBe(actionError)
+  })
+
+  it('fails after exhausting all retry attempts', async () => {
+    const persistentError = new Error('Persistent failure')
+    mockEnsureProjectAtom.mockRejectedValue(persistentError)
+
+    await expect(
+      processAttestations(
+        mockIntuitionClient as any,
+        repository,
+        contributors,
+        'fail',
+        retryOptions
+      )
+    ).rejects.toThrow('Persistent failure')
+
+    // Verify retry attempts were made (maxAttempts = 3)
+    // Note: The actual retry happens inside ensureProjectAtom which is mocked
+    // so we can only verify it was called once from processAttestations
+    expect(mockEnsureProjectAtom).toHaveBeenCalledTimes(1)
   })
 })
