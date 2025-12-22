@@ -53,7 +53,7 @@
     "@0xintuition/sdk": "^2.0.2",
     "@actions/core": "^1.11.1",
     "@actions/github": "^6.0.1",
-    "viem": "^2.41.2"
+    "viem": "^2.43.3"
   },
   "devDependencies": {
     "@eslint/compat": "^1.4.0",
